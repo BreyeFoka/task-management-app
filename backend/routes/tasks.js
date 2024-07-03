@@ -1,6 +1,5 @@
-import express from 'express'
-
-import pool from '../db'
+const express = require ("express")
+const pool = require ("../db")
 
 
 const router = express.Router()
@@ -50,6 +49,7 @@ router.put("/:id", async(req, res) => {
         res.status(500).send("Server Error")
 
     }})
+    
 router.delete("/:id", async(req, res) => {
     try{
         const {id} = req.params
@@ -60,3 +60,5 @@ router.delete("/:id", async(req, res) => {
             res.status(500).send("Server Error")
     }
 })
+
+module.exports = router
