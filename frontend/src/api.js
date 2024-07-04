@@ -1,11 +1,39 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:5000/api/tasks";
+const API_URL = 'http://localhost:5000/api/tasks';
 
-const getTasks = () => axios.get(API_URL)
-const getTask = (id) => axios.get(`${API_URL}/:id`);
-const createTask = (task) => axios.post(API_URL, task);
-const updateTask = (id, task) => axios.put(`${API_URL}/${id}`, task);
-const deleteTask = (id) => axios.delete(`${API_URL}/${id}`);
+export const fetchTasks = async () => {
+    try {
+        const response = await axios.get(API_URL);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+        return [];
+    }
+};
 
- export {getTasks, getTask, createTask, updateTask, deleteTask}
+export const createTask = async (task) => {
+    try {
+        const response = await axios.post(API_URL, task);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating task:', error);
+    }
+};
+
+export const updateTask = async (id, task) => {
+    try {
+        const response = await axios.put(`${API_URL}/${id}`, task);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating task:', error);
+    }
+};
+
+export const deleteTask = async (id) => {
+    try {
+        await axios.delete(`${API_URL}/${id}`);
+    } catch (error) {
+        console.error('Error deleting task:', error);
+    }
+};

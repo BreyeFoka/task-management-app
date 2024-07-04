@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { createTask, updateTask } from '../api';
 import './TaskForm.css';
 
-const TaskForm = ({ currentTask, onSave }) => {
+import React, { useEffect, useState } from 'react';
+import { createTask, updateTask } from '../api';
+
+const TaskForm = ({ currentTask, onSave, onTaskSaved }) => {
     const [task, setTask] = useState({ title: '', description: '', status: 'Pending' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -33,6 +34,7 @@ const TaskForm = ({ currentTask, onSave }) => {
             }
             setTask({ title: '', description: '', status: 'Pending' });
             onSave();
+            onTaskSaved(); 
         } catch (error) {
             console.error('Error saving task:', error);
             setError('Failed to save task');
@@ -42,33 +44,33 @@ const TaskForm = ({ currentTask, onSave }) => {
     };
 
     return (
-        <>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    name="title"
-                    value={task.title}
-                    onChange={handleChange}
-                    placeholder="Title"
-                    required
-                />
-                <textarea
-                    name="description"
-                    value={task.description}
-                    onChange={handleChange}
-                    placeholder="Description"
-                    required
-                ></textarea>
-                <select name="status" value={task.status} onChange={handleChange}>
-                    <option value="Pending">Pending</option>
-                    <option value="Completed">Completed</option>
-                </select>
-                <button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Saving...' : 'Save'}
-                </button>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-            </form>
-        </>
+        <form onSubmit={handleSubmit}>
+            <h1>Task Management App</h1>
+            <p>Create a new Task</p>
+            <input
+                type="text"
+                name="title"
+                value={task.title}
+                onChange={handleChange}
+                placeholder="Title"
+                required
+            />
+            <textarea
+                name="description"
+                value={task.description}
+                onChange={handleChange}
+                placeholder="Description"
+                required
+            ></textarea>
+            <select name="status" value={task.status} onChange={handleChange}>
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+            </select>
+            <button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save'}
+            </button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+        </form>
     );
 };
 

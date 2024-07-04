@@ -1,45 +1,48 @@
-import { useEffect, useState } from "react";
-import {getTasks, deleteTask} from "../api";
+import React from 'react';
+import { deleteTask } from '../api';
 
-import React from 'react'
-
-const TaskList = ({onEdit}) => {
-    const [tasks, setTasks] = useState([])
-    useEffect(() => {
-        loadTasks();
-    }, [])
-
-
-    const loadTasks = async () => {
-        const {data} = await getTasks();
-        setTasks(data);
-    }
-
+const TaskList = ({ tasks, onEdit, onTaskDeleted }) => {
     const handleDelete = async (id) => {
-        if(window.confirm("Are you sure you want to delete this task?")) {
-            await deleteTask(id);
-            loadTasks();
-        }
-    }
-    
-  return (
-    <div>
-    <h2>Tasks</h2>
-    <ul>
-        {tasks.map(task => (
-            <li key={task.id}>
-                {task.title}
-                <br/>
-                {task.description}
-                <br/>
-                {task.status === "pending" ? "Pending" : "Completed"}
-                <button onClick={() => onEdit(task)}>Edit</button>
-                <button onClick={() => handleDelete(task.id)}>Delete</button>
-            </li>
-        ))}
-    </ul>
-</div>
-  )
-}
+        await deleteTask(id);
+        onTaskDeleted();
+    };
 
-export default TaskList
+    return (
+        <ul>
+            {tasks.map((task) => (
+                <li key={task.id} style={taskItemStyle}>
+                    <div style={taskDetailsStyle}>
+                        <h3>{task.title}</h3>
+                        <p>{task.description}</p>
+                        <p>Status: {task.status}</p>
+                    </div>
+                    <div style={taskActionsStyle}>
+                        <button onClick={() => onEdit(task)}>Edit</button>
+                        <button onClick={() => handleDelete(task.id)}>Delete</button>
+                    </div>
+                </li>
+            ))}
+        </ul>
+    );
+};
+
+const taskItemStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px',
+    border: '1px solid #ddd',
+    marginBottom: '10px',
+    borderRadius: '4px',
+};
+
+const taskDetailsStyle = {
+    flex: 1,
+};
+
+const taskActionsStyle = {
+    display: 'flex',
+    gap: '10px',
+};
+
+export default TaskList;
