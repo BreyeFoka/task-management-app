@@ -1,18 +1,23 @@
-import './TaskForm.css';
+import React, { useState, useEffect } from 'react';
+import { createTask, updateTask, fetchTasks } from '../api';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import React, { useEffect, useState } from 'react';
-import { createTask, updateTask } from '../api';
-
-const TaskForm = ({ currentTask, onSave, onTaskSaved }) => {
+const TaskForm = () => {
     const [task, setTask] = useState({ title: '', description: '', status: 'Pending' });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
+    const { id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (currentTask) {
-            setTask(currentTask);
-        }
-    }, [currentTask]);
+        const loadTask = async () => {
+            if (id) {
+                const response = await fetchTasks();
+                const taskToEdit = response.data.find(t => t.id === parseInt(id));
+                if (taskToEdit) setTask(taskToEdit);
+            }
+        };
+
+        loadTask();
+    }, [id]);
 
     const handleChange = (e) => {
         setTask({ ...task, [e.target.name]: e.target.value });
@@ -20,58 +25,36 @@ const TaskForm = ({ currentTask, onSave, onTaskSaved }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!task.title || !task.description) {
-            setError('Title and Description are required');
-            return;
+        if (id) {
+            await updateTask(id, task);
+        } else {
+            await createTask(task);
         }
-        setError('');
-        setIsSubmitting(true);
-        try {
-            if (task.id) {
-                await updateTask(task.id, task);
-            } else {
-                await createTask(task);
-            }
-            setTask({ title: '', description: '', status: 'Pending' });
-            onSave();
-            onTaskSaved(); 
-        } catch (error) {
-            console.error('Error saving task:', error);
-            setError('Failed to save task');
-        } finally {
-            setIsSubmitting(false);
-        }
+        navigate('/tasks');
     };
 
     return (
         <form onSubmit={handleSubmit}>
-            <h1>Task Management App</h1>
-            <p>Create a new Task</p>
             <input
                 type="text"
                 name="title"
                 value={task.title}
                 onChange={handleChange}
                 placeholder="Title"
-                required
             />
             <textarea
                 name="description"
                 value={task.description}
                 onChange={handleChange}
                 placeholder="Description"
-                required
             ></textarea>
             <select name="status" value={task.status} onChange={handleChange}>
                 <option value="Pending">Pending</option>
                 <option value="Completed">Completed</option>
             </select>
-            <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save'}
-            </button>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <button type="submit">Save</button>
         </form>
     );
-};
+}
 
 export default TaskForm;

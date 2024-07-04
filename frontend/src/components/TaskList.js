@@ -1,48 +1,66 @@
-import React from 'react';
-import { deleteTask } from '../api';
+import React, { useEffect, useState } from 'react';
+import { fetchTasks, deleteTask } from '../api';
+import { useNavigate } from 'react-router-dom';
 
-const TaskList = ({ tasks, onEdit, onTaskDeleted }) => {
-    const handleDelete = async (id) => {
-        await deleteTask(id);
-        onTaskDeleted();
+const TaskList = () => {
+    const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const loadTasks = async () => {
+            try {
+                setLoading(true);
+                const response = await fetchTasks();
+                setTasks(response.data || []); // Ensure tasks is always an array
+            } catch (err) {
+                setError('Failed to fetch tasks');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadTasks();
+    }, []);
+
+    const handleDelete = async (taskId) => {
+        try {
+            await deleteTask(taskId);
+            setTasks(tasks.filter(task => task.id !== taskId));
+        } catch (err) {
+            setError('Failed to delete task');
+        }
     };
 
+    if (loading) {
+        return <p>Loading tasks...</p>;
+    }
+
+    if (error) {
+        return <p>{error}</p>;
+    }
+
     return (
-        <ul>
-            {tasks.map((task) => (
-                <li key={task.id} style={taskItemStyle}>
-                    <div style={taskDetailsStyle}>
-                        <h3>{task.title}</h3>
-                        <p>{task.description}</p>
-                        <p>Status: {task.status}</p>
-                    </div>
-                    <div style={taskActionsStyle}>
-                        <button onClick={() => onEdit(task)}>Edit</button>
-                        <button onClick={() => handleDelete(task.id)}>Delete</button>
-                    </div>
-                </li>
-            ))}
-        </ul>
+        <div>
+            <h1>Tasks</h1>
+            <button onClick={() => navigate('/tasks/new')}>Create New Task</button>
+            {tasks.length === 0 ? (
+                <p>No tasks available.</p>
+            ) : (
+                <ul>
+                    {tasks.map(task => (
+                        <li key={task.id}>
+                            <h3>{task.title}</h3>
+                            <p>{task.description}</p>
+                            <button onClick={() => navigate(`/tasks/edit/${task.id}`)}>Edit</button>
+                            <button onClick={() => handleDelete(task.id)}>Delete</button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
     );
-};
-
-const taskItemStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px',
-    border: '1px solid #ddd',
-    marginBottom: '10px',
-    borderRadius: '4px',
-};
-
-const taskDetailsStyle = {
-    flex: 1,
-};
-
-const taskActionsStyle = {
-    display: 'flex',
-    gap: '10px',
-};
+}
 
 export default TaskList;

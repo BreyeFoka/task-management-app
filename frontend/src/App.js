@@ -1,43 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import TaskForm from './components/TaskForm';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import TaskList from './components/TaskList';
-import { fetchTasks } from './api';
+import TaskForm from './components/TaskForm';
+import Login from './components/Login';
+import Register from './components/Register';
+import { setAuthToken } from './api';
 
 const App = () => {
-    const [tasks, setTasks] = useState([]);
-    const [currentTask, setCurrentTask] = useState(null);
-
     useEffect(() => {
-        loadTasks();
+        const token = localStorage.getItem('token');
+        if (token) {
+            setAuthToken(token);
+        }
     }, []);
 
-    const loadTasks = async () => {
-        const tasks = await fetchTasks();
-        setTasks(tasks);
-    };
-
-    const handleTaskDeleted = () => {
-        loadTasks(); 
-    };
-
-    const handleSave = () => {
-        setCurrentTask(null); // Reset current task after save
-    };
-
-    const handleTaskSaved = () => {
-        loadTasks(); // Reload tasks
-    };
-
-    const handleEdit = (task) => {
-        setCurrentTask(task);
-    };
-
     return (
-        <div className="app">
-            <TaskForm currentTask={currentTask} onSave={handleSave} onTaskSaved={handleTaskSaved} />
-            <TaskList tasks={tasks} onEdit={handleEdit}  onTaskDeleted={handleTaskDeleted}/>
-        </div>
+        <Router>
+            <div className="App">
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/tasks" element={<TaskList />} />
+                    <Route path="/tasks/new" element={<TaskForm />} />
+                    <Route path="/tasks/edit/:id" element={<TaskForm />} />
+                    <Route path="/" element={<Navigate to="/tasks" />} />
+                </Routes>
+            </div>
+        </Router>
     );
-};
+}
 
 export default App;
