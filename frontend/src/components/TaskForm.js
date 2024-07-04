@@ -14,7 +14,7 @@ const TaskForm = ({currentTask, onSave}) => {
         setTask({...task, [e.target.name]: e.target.value})
     }
 
-    const handleSublit = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (task.id){
             await updateTask(task.id, task);
