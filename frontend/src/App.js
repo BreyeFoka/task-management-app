@@ -1,12 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import { useState } from 'react'
+import TaskForm from './components/TaskForm'
+import TaskList from './components/TaskList'
 
-function App() {
+
+const App = () => {
+  const[currentTask, setCurrentTask] = useState(null)
+
+  const handleEdit = (task) => {
+    setCurrentTask(task)
+  }
+  const handleSave = () => {
+    setCurrentTask(null)
+  }
   return (
-    <div className="App">
-      
+    <div>
+        <h1>Task Management</h1>
+        <TaskForm currentTask={currentTask} onSave={handleSave} />
+        <TaskList onEdit={handleEdit} />
     </div>
-  );
+);
 }
 
-export default App;
+export default App
