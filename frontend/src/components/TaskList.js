@@ -29,6 +29,10 @@ const TaskList = ({onEdit}) => {
         {tasks.map(task => (
             <li key={task.id}>
                 {task.title}
+                <br/>
+                {task.description}
+                <br/>
+                {task.status === "pending" ? "Pending" : "Completed"}
                 <button onClick={() => onEdit(task)}>Edit</button>
                 <button onClick={() => handleDelete(task.id)}>Delete</button>
             </li>
