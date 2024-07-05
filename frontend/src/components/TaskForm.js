@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { createTask, updateTask, fetchTasks } from '../api';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { createTask, updateTask } from '../api';
+import './TaskForm.css';
 
-const TaskForm = () => {
+const TaskForm = ({ currentTask, onSave }) => {
     const [task, setTask] = useState({ title: '', description: '', status: 'Pending' });
     const { id } = useParams();
     const navigate = useNavigate();
@@ -25,35 +25,56 @@ const TaskForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (id) {
-            await updateTask(id, task);
-        } else {
-            await createTask(task);
+        if (!task.title || !task.description) {
+            setError('Title and Description are required');
+            return;
         }
-        navigate('/tasks');
+        setError('');
+        setIsSubmitting(true);
+        try {
+            if (task.id) {
+                await updateTask(task.id, task);
+            } else {
+                await createTask(task);
+            }
+            setTask({ title: '', description: '', status: 'Pending' });
+            onSave();
+        } catch (error) {
+            console.error('Error saving task:', error);
+            setError('Failed to save task');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input
-                type="text"
-                name="title"
-                value={task.title}
-                onChange={handleChange}
-                placeholder="Title"
-            />
-            <textarea
-                name="description"
-                value={task.description}
-                onChange={handleChange}
-                placeholder="Description"
-            ></textarea>
-            <select name="status" value={task.status} onChange={handleChange}>
-                <option value="Pending">Pending</option>
-                <option value="Completed">Completed</option>
-            </select>
-            <button type="submit">Save</button>
-        </form>
+        <>
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    name="title"
+                    value={task.title}
+                    onChange={handleChange}
+                    placeholder="Title"
+                    required
+                />
+                <textarea
+                    name="description"
+                    value={task.description}
+                    onChange={handleChange}
+                    placeholder="Description"
+                    required
+                ></textarea>
+                <select name="status" value={task.status} onChange={handleChange}>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                </select>
+                <button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Saving...' : 'Save'}
+                </button>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+            </form>
+        </>
     );
 }
 

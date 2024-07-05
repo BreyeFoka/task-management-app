@@ -1,33 +1,25 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import TaskList from './components/TaskList';
-import TaskForm from './components/TaskForm';
-import Login from './components/Login';
-import Register from './components/Register';
-import { setAuthToken } from './api';
+import React from 'react'
+import { useState } from 'react'
+import TaskForm from './components/TaskForm'
+import TaskList from './components/TaskList'
+
 
 const App = () => {
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            setAuthToken(token);
-        }
-    }, []);
+  const[currentTask, setCurrentTask] = useState(null)
 
-    return (
-        <Router>
-            <div className="App">
-                <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/tasks" element={<TaskList />} />
-                    <Route path="/tasks/new" element={<TaskForm />} />
-                    <Route path="/tasks/edit/:id" element={<TaskForm />} />
-                    <Route path="/" element={<Navigate to="/tasks" />} />
-                </Routes>
-            </div>
-        </Router>
-    );
+  const handleEdit = (task) => {
+    setCurrentTask(task)
+  }
+  const handleSave = () => {
+    setCurrentTask(null)
+  }
+  return (
+    <div>
+        <h1>Task Management</h1>
+        <TaskForm currentTask={currentTask} onSave={handleSave} />
+        <TaskList onEdit={handleEdit} />
+    </div>
+);
 }
 
-export default App;
+export default App
